@@ -2,7 +2,7 @@ import socket
 import sys
 import string
 import argparse
-
+import binascii
 
 def printTest(server,payload):
     print("\nserver is: ")
@@ -13,45 +13,99 @@ def printTest(server,payload):
     print(payload)
 
 def stringToHex(string):
+    hex_list =[]
     temp = []
-    
-    stringHex = ''.join(hex(ord(char))for char in string)
-    stringHex = stringHex.replace("0x"," ")
-    stringHex = stringHex.split(" ")
-    length = len(stringHex)
-    for index in range(1,length-1,2):
-        portion = [stringHex[index],stringHex[index+1]]
-        word = ''.join(portion)
-        temp.append(word)
+    hex_value=[]
+    testlist=[]
+
+    if(string.isalnum() == True):
         
-    stringHex= ' '.join(temp)
-    return stringHex
-#needs work, not completely debugged yet
+        string=list(string)
+        stringlength=len(string)
+        for index in range(0,stringlength,1):
+            string[index] = int(string[index],base = 16)
+            value = string[index]*(16**(stringlength-index-1))
+            hex_value.append(value)
+        word = sum(hex_value)
+        #print("\nhex_value is: ",hex_value)      
+        hex_list.append(word)
+        hex_value.clear()
+        #print("\ntest is: ",testlist)
+    
+    stringHex2=string.replace(".","")
+    
+    if(stringHex2.isdigit()):
+        print("test flag")
+        stringHex=string.split(".")
+        print(stringHex)
+        stringlength=len(stringHex)
+        
+        for index in range(0,stringlength,1):
+            stringHex[index] = int(stringHex[index],base = 16)
+            value = stringHex[index]*(16**(stringlength-index-1))
+            hex_value.append(stringHex[index])
+        word = sum(hex_value)
+        print("\nhex_value is: ",hex_value)      
+        hex_list.append(word)
+        hex_value.clear()
+        
+               
+    else:
+        
+            
+            
+        stringHex = ''.join(hex(ord(char))for char in string)
+        stringHex = stringHex.replace("0x"," ")
+        stringHex = stringHex.split(" ")
+        print("\nstringHex is: ",stringHex) 
+        length = len(stringHex)
+        for index in range(1,length-1,2):
+            portion = [stringHex[index],stringHex[index+1]]
+            word = ''.join(portion)
+            temp.append(word)
+        print("\ntemp is: ",temp)    
+        stringHex= ' '.join(temp)
+    
+        tempLength = len(temp)
+        for index in range(0,tempLength,1):
+            word = list(temp[index])
+            testlist.append(word)
+            wordLength= len(word)
+            for index in range(0,wordLength,1):
+                word[index] = int(word[index],base =16)
+                value = word[index]*(16**(wordLength-index-1))
+                hex_value.append(value)
+            word = sum(hex_value)
+            print("\nhex_value is: ",hex_value)      
+            hex_list.append(word)
+            hex_value.clear()
+        print("\ntest is: ",testlist)   
+    
+    return hex_list
+
 def checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identification,IPFlagsAndFragmentOffset,IPTTLandProtocol,sourceIP,destinationIP):
     temp =[]
     word1 = payloadheaderIP+headerLength+TOS
-    word1 = stringToHex(word1)
+    word1=stringToHex(word1)
     temp.append(word1)
     headerChecksum = stringToHex("0000")
     temp.append(headerChecksum)
-    payloadheaderIPHex = stringToHex(payloadheaderIP)
-    temp.append(payloadheaderIPHex)
-    headerLengthHex=stringToHex(headerLength)
-    temp.append(headerLengthHex)
-    TOSHex=stringToHex(TOS)
-    temp.append(TOSHex)
     IPheaderLengthHex= stringToHex(IPheaderLength)
     temp.append(IPheaderLengthHex)
+    print("\ntemp is: ",temp)
     IdentificationHex = stringToHex(Identification)
     temp.append(IdentificationHex)
     IPFlagsAndFragmentOffsetHex=stringToHex(IPFlagsAndFragmentOffset)
     temp.append(IPFlagsAndFragmentOffsetHex)
     IPTTLandProtocolHex=stringToHex(IPTTLandProtocol)
     temp.append(IPTTLandProtocolHex)
+    
+    print("\ntest is: ",type(IPFlagsAndFragmentOffsetHex))
     sourceIPHex = stringToHex(sourceIP)
     temp.append(sourceIPHex)
     destinationIPHex = stringToHex(destinationIP)
     temp.append(destinationIPHex)
+    print("\ntemp is: ",temp)
     checksum = sum(temp)
     return checksum
     
@@ -64,7 +118,8 @@ def encapsulatePacket(IPheaderLength,Identification,checkSum,sourceIP,destinatio
     packet = headerIP+headerLength+TOS+" "+IPheaderLength+" "+Identification+" "+IPFlagsAndFragmentOffset+" "+IPTTLandProtocol+" "+checksum+" "+sourceIPHex+" "+destinationIPHex+" "+payload
 
     return packet
-    
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-server",type = str,required = True,action ="store")
@@ -76,21 +131,39 @@ def main():
 
     payloadHex = stringToHex(payload)
     serverHex = stringToHex(server)
-    print(payloadHex)
+    
+    #print(payloadHex)
 
      #may want to make these variables as user inputs, not sure yet
-    IPheaderLength = "0028"
-    Identification = "1c46"
+    testSource = "192.168.0.3"
+    testDestination = "192.168.0.1"
+
+
+    
     print("\n")
-    sourceIP= str(input("Please input the sourceIP in the following format: xxx.xxx.x.x"))
+    print("conversion test begin: ")
+    print("\n",testSource)
+    print("\n",testDestination)
+    IdentificationHex = stringToHex(testSource)
+    IPheaderLengthHex =stringToHex(testDestination)
+    
+    
+    print("\nconversion test conclude: ")
+
+    print("\n",IdentificationHex)
+    print("\n",IPheaderLengthHex)
+
+
+    
+    sourceIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
     sourceIPHex = stringToHex(sourceIP)
     print("\n")
-    destinationIP= str(input("Please input the sourceIP in the following format: xxx.xxx.x.x"))
+    destinationIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
     destinationIPHex = stringToHex(destinationIP)
     payloadheaderIP ="4"
     headerLength ="5"
     TOS ="00"
-    IPFlagsAndFragmentOffset = "4000",
+    IPFlagsAndFragmentOffset = "4000"
     IPTTLandProtocol ="4006"
 
     #checksum = "9D35" #need to implement  code to calculate checksum here, using hardcoded checksum here for now
@@ -105,7 +178,45 @@ if __name__ == "__main__":
     main()
 
 
+#############################################################################
+'''
+
+# Create a TCP/IP socket
+Client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connect the socket to the port where the server is listening
+server_address = ('localhost', 10800)
+print ('connecting to ', server_address)
+Client_socket.connect(server_address)
+
+##After the connection is established, data can be sent through the socket with sendall() and received with recv(), just as in the server.
+
+try:
+    
+    # Send data
+    # message = b'This is a massage from hamzah.  It will be repeated.'
+    # you can enter the massage from keyboard this way. instead of the fixed massage above
+    value = input("Please enter  the massage you want to be echoed:\n")
+    message = value.encode('utf-8')
+    print( 'sending : ' ,  message)
+    Client_socket.sendall(message)
+
+    # Look for the response
+    amount_received = 0
+    amount_expected = len(message)
     
     
+    
+    # here we choose the size of the buffer e.g. 100 
+    while amount_received < amount_expected:
+        data = Client_socket.recv(100)
+        amount_received += len(data)
+        print ('received :' , data) 
+
+finally:
+    print('closing socket')
+    Client_socket.close()
+    
+'''
 
     
