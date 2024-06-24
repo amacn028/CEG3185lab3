@@ -102,11 +102,14 @@ def stringToHexEquivalentIntegerValue(string):
         stringHex = ''.join(hex(ord(char))for char in string)
         stringHex = stringHex.replace("0x"," ")
         stringHex = stringHex.split(" ")
+        
          
         length = len(stringHex)
         for index in range(1,length-1,2):
             portion = [stringHex[index],stringHex[index+1]]
+            
             word = ''.join(portion)
+            
             temp.append(word)
             
         stringHex= ' '.join(temp)
@@ -114,6 +117,7 @@ def stringToHexEquivalentIntegerValue(string):
         tempLength = len(temp)
         for index in range(0,tempLength,1):
             word = list(temp[index])
+            
             testlist.append(word)
             wordLength= len(word)
             for index in range(0,wordLength,1):
@@ -225,18 +229,18 @@ def main():
 
     payloadHex = stringToHexEquivalentIntegerValue(payload)
     serverHex = stringToHexEquivalentIntegerValue(server)
-    
+    #print("\npayloadHex is: ",payloadHex)
    
     
 
 
-    
+    print("\n")
     sourceIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
     sourceIPHex = stringToHexEquivalentIntegerValue(sourceIP)
     print("\n")
     destinationIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
     destinationIPHex = stringToHexEquivalentIntegerValue(destinationIP)
-    
+    print("\n")
     payloadheaderIP ="4"
     headerLength ="5"
     TOS ="00"
@@ -252,9 +256,47 @@ def main():
     
     word1 = integerToHex(sliced_ip_address_list)
     
-    #payloadHex = integerToHex(payloadHex)
-    packet = encapsulatePacket(IPheaderLength,Identification,checksum,word1,str(payloadHex),payloadheaderIP ,headerLength ,TOS,IPFlagsAndFragmentOffset,IPTTLandProtocol)
-    print(packet)
+    payloadHex = integerToHex(payloadHex)
+    packet = encapsulatePacket(IPheaderLength,Identification,checksum,word1,payloadHex,payloadheaderIP ,headerLength ,TOS,IPFlagsAndFragmentOffset,IPTTLandProtocol)
+    print("\n",packet)
+    host = '127.0.0.1'
+    port = 9879
+    # Create a TCP/IP socket
+    Client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect the socket to the port where the server is listening
+    server_address = (host, port)
+    print ('connecting to ', server_address)
+    Client_socket.connect(server_address)
+
+    ##After the connection is established, data can be sent through the socket with sendall() and received with recv(), just as in the server.
+
+    try:
+    
+        # Send data
+        message = b'This is a massage from hamzah.  It will be repeated.'
+        # you can enter the massage from keyboard this way. instead of the fixed massage above
+        #value = input("Please enter  the massage you want to be echoed:\n")
+        #message = message.encode('utf-8')
+        print( 'sending : ' ,  message)
+        Client_socket.sendall(message)
+
+        # Look for the response
+        amount_received = 0
+        amount_expected = len(packet)
+    
+    
+    
+        # here we choose the size of the buffer e.g. 100 
+        while amount_received < amount_expected:
+            data = Client_socket.recv(100)
+            amount_received += len(data)
+            print ('received :' , data) 
+
+    finally:
+        print('closing socket')
+        Client_socket.close()
+    
                        
     return 0
 
@@ -263,44 +305,10 @@ if __name__ == "__main__":
 
 
 #############################################################################
-'''
 
-# Create a TCP/IP socket
-Client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connect the socket to the port where the server is listening
-server_address = ('localhost', 10800)
-print ('connecting to ', server_address)
-Client_socket.connect(server_address)
 
-##After the connection is established, data can be sent through the socket with sendall() and received with recv(), just as in the server.
-
-try:
     
-    # Send data
-    # message = b'This is a massage from hamzah.  It will be repeated.'
-    # you can enter the massage from keyboard this way. instead of the fixed massage above
-    value = input("Please enter  the massage you want to be echoed:\n")
-    message = value.encode('utf-8')
-    print( 'sending : ' ,  message)
-    Client_socket.sendall(message)
 
-    # Look for the response
-    amount_received = 0
-    amount_expected = len(message)
-    
-    
-    
-    # here we choose the size of the buffer e.g. 100 
-    while amount_received < amount_expected:
-        data = Client_socket.recv(100)
-        amount_received += len(data)
-        print ('received :' , data) 
-
-finally:
-    print('closing socket')
-    Client_socket.close()
-    
-'''
 
     
