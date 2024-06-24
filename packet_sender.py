@@ -2,9 +2,9 @@ import socket
 import sys
 import string
 import argparse
-import binascii
-from decimal import Decimal
 
+ip_address_list =[]
+sliced_ip_address_list=[]
 def printTest(server,payload):
     print("\nserver is: ")
     print("\n")
@@ -12,7 +12,7 @@ def printTest(server,payload):
     print("\npayload is: ")
     print("\n")
     print(payload)
-#rename this string to integer honestly 
+ 
 def stringToHexEquivalentIntegerValue(string):
     hex_list =[]
     temp = []
@@ -62,8 +62,10 @@ def stringToHexEquivalentIntegerValue(string):
         stringlength= len(testlist)
         for index in range(0,stringlength,2):
             portion = [testlist[index],testlist[index+1]]
+            
             word = ''.join(portion)
             temp.append(word)
+            
             wordLength= len(word)
         
         tempLength = len(temp)
@@ -75,19 +77,22 @@ def stringToHexEquivalentIntegerValue(string):
                 word[index] = int(word[index],base =16)
                 value = word[index]*(16**(wordLength-index-1))
                 hex_value.append(value)
+            
             word = sum(hex_value)
             word = int(word)
-                
+            ip_address_list.append(word)   
             hex_list.append(word)
+            
+            
             
             summation = sum(hex_list)
             hex_list.clear()
+            
             hex_value.clear()
             hex_list.append(summation)
-            
-            
-            
         
+       
+         
         return hex_list
                
     else:
@@ -181,19 +186,30 @@ def checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identific
         ones_comp = 65535-value
         checksum=hex(ones_comp)
         checksum=checksum.replace("0x","")
-    print("\ntype is: ",type(checksum))
+    
     return checksum
     
-def integerToHex
+def integerToHex(lst):
+    string = ''
+    for item in lst:
+        if item>16:
+            item = hex(item)
+            item = item.replace("0x","")
+            string=string+" "+item
+        else:
+            item = hex(item)
+            item = item.replace("0x","")
+            string=string+" "+"000"+item
+            
+    return string
 
 
-
-def encapsulatePacket(IPheaderLength,Identification,checksum,sourceIPHex,destinationIPHex,payload,
+def encapsulatePacket(IPheaderLength,Identification,checksum,sourceIPandDestinationIPWord,payload,
                       payloadheaderIP ="4",headerLength ="5",TOS ="00",
                       IPFlagsAndFragmentOffset = "4000",
                       IPTTLandProtocol ="4006"):
    
-    packet = payloadheaderIP+headerLength+TOS+" "+IPheaderLength+" "+Identification+" "+IPFlagsAndFragmentOffset+" "+IPTTLandProtocol+" "+checksum+" "+sourceIPHex+" "+destinationIPHex+" "+payload
+    packet = payloadheaderIP+headerLength+TOS+" "+IPheaderLength+" "+Identification+" "+IPFlagsAndFragmentOffset+" "+IPTTLandProtocol+" "+checksum+sourceIPandDestinationIPWord+payload
 
     return packet
 
@@ -220,8 +236,7 @@ def main():
     print("\n")
     destinationIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
     destinationIPHex = stringToHexEquivalentIntegerValue(destinationIP)
-    print("\nIPcheck: ",sourceIPHex)
-    print("\nIPcheck: ",destinationIPHex)
+    
     payloadheaderIP ="4"
     headerLength ="5"
     TOS ="00"
@@ -229,11 +244,16 @@ def main():
     IPTTLandProtocol ="4006"
     IPheaderLength ="0028"
     Identification ="1c46"
-
+    
     
     checksum = checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identification,IPFlagsAndFragmentOffset,IPTTLandProtocol,sourceIP,destinationIP)
-    print("\n checksum is: ", checksum)                   
-    packet = encapsulatePacket(IPheaderLength,Identification,checksum,str(sourceIPHex),str(destinationIPHex),str(payloadHex),payloadheaderIP ,headerLength ,TOS,IPFlagsAndFragmentOffset,IPTTLandProtocol)
+    
+    sliced_ip_address_list= ip_address_list[:4:1]
+    
+    word1 = integerToHex(sliced_ip_address_list)
+    
+    #payloadHex = integerToHex(payloadHex)
+    packet = encapsulatePacket(IPheaderLength,Identification,checksum,word1,str(payloadHex),payloadheaderIP ,headerLength ,TOS,IPFlagsAndFragmentOffset,IPTTLandProtocol)
     print(packet)
                        
     return 0
