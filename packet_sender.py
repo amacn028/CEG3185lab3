@@ -3,6 +3,7 @@ import sys
 import string
 import argparse
 import binascii
+from decimal import Decimal
 
 def printTest(server,payload):
     print("\nserver is: ")
@@ -11,7 +12,7 @@ def printTest(server,payload):
     print("\npayload is: ")
     print("\n")
     print(payload)
-
+#rename this string to integer honestly 
 def stringToHex(string):
     hex_list =[]
     temp = []
@@ -30,8 +31,22 @@ def stringToHex(string):
         #print("\nhex_value is: ",hex_value)      
         hex_list.append(word)
         hex_value.clear()
+        return hex_list
         #print("\ntest is: ",testlist)
-    
+    print("\nstring is: ",string)
+    if(type(string)==list):
+        print("\nflag list")
+        stringlength=len(string)
+        for index in range(0,stringlength,1):
+            string[index] = int(str(string[index]),base = 16)
+            value = string[index]*(16**(stringlength-index-1))
+            hex_value.append(value)
+        word = sum(hex_value)
+        #print("\nhex_value is: ",hex_value)      
+        hex_list.append(word)
+        hex_value.clear()
+        return hex_list
+        
     stringHex2=string.replace(".","")
     
     if(stringHex2.isdigit()):
@@ -45,10 +60,13 @@ def stringToHex(string):
             value = stringHex[index]*(16**(stringlength-index-1))
             hex_value.append(stringHex[index])
         word = sum(hex_value)
-        print("\nhex_value is: ",hex_value)      
+        #word = int(word)
+        print("\nword is: ",word)
+        print(type(word))
         hex_list.append(word)
         hex_value.clear()
-        
+        print("\ntest is: ",hex_list) 
+        return hex_list
                
     else:
         
@@ -79,7 +97,7 @@ def stringToHex(string):
             print("\nhex_value is: ",hex_value)      
             hex_list.append(word)
             hex_value.clear()
-        print("\ntest is: ",testlist)   
+          
     
     return hex_list
 
@@ -87,6 +105,7 @@ def checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identific
     temp =[]
     word1 = payloadheaderIP+headerLength+TOS
     word1=stringToHex(word1)
+    print("\ntest is: ",word1)
     temp.append(word1)
     headerChecksum = stringToHex("0000")
     temp.append(headerChecksum)
@@ -100,13 +119,19 @@ def checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identific
     IPTTLandProtocolHex=stringToHex(IPTTLandProtocol)
     temp.append(IPTTLandProtocolHex)
     
-    print("\ntest is: ",type(IPFlagsAndFragmentOffsetHex))
+    
     sourceIPHex = stringToHex(sourceIP)
     temp.append(sourceIPHex)
     destinationIPHex = stringToHex(destinationIP)
     temp.append(destinationIPHex)
+    
+    
+    
+    print("\ntemp is: ",temp)
+    temp = [item for sublist in temp for item in sublist]
     print("\ntemp is: ",temp)
     checksum = sum(temp)
+    print("\nchecksum is: ",checksum)
     return checksum
     
  #needs testing still, need to fix checkSumCalculator first
@@ -165,11 +190,13 @@ def main():
     TOS ="00"
     IPFlagsAndFragmentOffset = "4000"
     IPTTLandProtocol ="4006"
+    IPheaderLength ="0028"
+    Identification ="1c46"
 
     #checksum = "9D35" #need to implement  code to calculate checksum here, using hardcoded checksum here for now
     checksum = checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identification,IPFlagsAndFragmentOffset,IPTTLandProtocol,sourceIP,destinationIP)
-    print(checksum)                   
-    packet = encapsulatePacket(IPheaderLength,Identification,checkSum,sourceIP,destinationIP,payloadheaderIP ,headerLength ,TOS,IPFlagsAndFragmentOffset,IPTTLandProtocol)
+    print("\n checksum is: ", checksum)                   
+    packet = encapsulatePacket(IPheaderLength,Identification,checksum,sourceIP,destinationIP,payloadheaderIP ,headerLength ,TOS,IPFlagsAndFragmentOffset,IPTTLandProtocol)
     print(packet)
                        
     return 0
