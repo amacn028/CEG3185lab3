@@ -195,16 +195,21 @@ def checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identific
     
 def integerToHex(lst):
     string = ''
+    spacing =''
     for item in lst:
-        if item>16:
+        if len(str(item))<4:
+            
             item = hex(item)
             item = item.replace("0x","")
-            string=string+" "+item
+            for index in range(0,4-len(str(item)),1):
+                spacing="0"+spacing
+                
+            string=string+" "+spacing+item
+            spacing = ''
         else:
             item = hex(item)
             item = item.replace("0x","")
-            string=string+" "+"000"+item
-            
+            string=string+" "+item
     return string
 
 
@@ -251,21 +256,21 @@ def main():
     
     
     checksum = checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identification,IPFlagsAndFragmentOffset,IPTTLandProtocol,sourceIP,destinationIP)
-    
-    sliced_ip_address_list= ip_address_list[:4:1]
-    
+    print("\nip_address_list is: ",ip_address_list)
+    sliced_ip_address_list= ip_address_list[2:6:1]
+    print("\nsliced_ip_address_list is: ",sliced_ip_address_list)
     word1 = integerToHex(sliced_ip_address_list)
     
     payloadHex = integerToHex(payloadHex)
     packet = encapsulatePacket(IPheaderLength,Identification,checksum,word1,payloadHex,payloadheaderIP ,headerLength ,TOS,IPFlagsAndFragmentOffset,IPTTLandProtocol)
     print("\n",packet)
-    host = '127.0.0.1'
+    #host = '127.0.0.1'
     port = 9879
     # Create a TCP/IP socket
     Client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+    print("\nserver is: ",server)
     # Connect the socket to the port where the server is listening
-    server_address = (host, port)
+    server_address = (server, port)
     print ('connecting to ', server_address)
     Client_socket.connect(server_address)
 
@@ -274,10 +279,11 @@ def main():
     try:
     
         # Send data
-        message = b'This is a massage from hamzah.  It will be repeated.'
+        #message = b'This is a massage from hamzah.  It will be repeated.'
         # you can enter the massage from keyboard this way. instead of the fixed massage above
         #value = input("Please enter  the massage you want to be echoed:\n")
-        #message = message.encode('utf-8')
+        message = packet.encode('utf-8')
+        
         print( 'sending : ' ,  message)
         Client_socket.sendall(message)
 
