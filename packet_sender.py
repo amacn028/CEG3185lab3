@@ -243,7 +243,7 @@ def main():
     sourceIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
     sourceIPHex = stringToHexEquivalentIntegerValue(sourceIP)
     print("\n")
-    destinationIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
+    destinationIP= str(input("Please input the destinationIP in the following format xxx.xxx.x.x: "))
     destinationIPHex = stringToHexEquivalentIntegerValue(destinationIP)
     print("\n")
     payloadheaderIP ="4"
