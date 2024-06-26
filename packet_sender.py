@@ -202,7 +202,26 @@ def integerToHex(lst):
             item = item.replace("0x", "")
             string = string+" "+item
     return string
-
+def lengthCheck(char,lst):
+    headerLength = int(char)
+    payloadLength = len(lst)
+    headerLength= headerLength*4
+    payloadLength=payloadLength*2
+    string = integerToHex(lst)
+    padding =''
+    
+    
+    
+    summation =headerLength + payloadLength
+    check = summation%8
+    
+    if check==0:
+        return string
+    else:
+        for index in range(0,check,1):
+            padding= "0"+padding
+        string = string+" "+padding
+    return string
 
 def encapsulatePacket(IPheaderLength, Identification, checksum, sourceIPandDestinationIPWord, payload,
                       payloadheaderIP="4", headerLength="5", TOS="00",
@@ -241,21 +260,23 @@ def main():
     IPTTLandProtocol = "4006"
     IPheaderLength = "0028"
     Identification = "1c46"
+
+    payloadCheck=lengthCheck(headerLength,payloadHex)
     
     checksum = checkSumCalculator(payloadheaderIP, headerLength, TOS, IPheaderLength, Identification, IPFlagsAndFragmentOffset, IPTTLandProtocol, sourceIP, destinationIP)
-    print("\nip_address_list is: ", ip_address_list)
+    
     sliced_ip_address_list = ip_address_list[2:6:1]
-    print("\nsliced_ip_address_list is: ", sliced_ip_address_list)
+    
     word1 = integerToHex(sliced_ip_address_list)
     
     payloadHex = integerToHex(payloadHex)
-    packet = encapsulatePacket(IPheaderLength, Identification, checksum, word1, payloadHex, payloadheaderIP, headerLength, TOS, IPFlagsAndFragmentOffset, IPTTLandProtocol)
-    print("\n", packet)
+    packet = encapsulatePacket(IPheaderLength, Identification, checksum, word1, payloadCheck, payloadheaderIP, headerLength, TOS, IPFlagsAndFragmentOffset, IPTTLandProtocol)
+   
     # host = '127.0.0.1'
     port = 9879
     # Create a TCP/IP socket
     Client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print("\nserver is: ", server)
+    
     # Connect the socket to the port where the server is listening
     server_address = (server, port)
     print('connecting to ', server_address)
