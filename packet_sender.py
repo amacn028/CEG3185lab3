@@ -173,7 +173,7 @@ def checkSumCalculator(payloadheaderIP, headerLength, TOS, IPheaderLength, Ident
         word = sum(hex_value)
                  
         hex_list.append(word)
-        hex_list.append(int(word3))
+        hex_list.append(int(word3, 16))
         hex_value.clear()
         
         value = sum(hex_list)
