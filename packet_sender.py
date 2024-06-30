@@ -7,15 +7,6 @@ ip_address_list = []
 sliced_ip_address_list = []
 
 
-def printTest(server, payload):
-    print("\nserver is: ")
-    print("\n")
-    print(server)
-    print("\npayload is: ")
-    print("\n")
-    print(payload)
- 
-
 def stringToHexEquivalentIntegerValue(string):
     hex_list = []
     temp = []
@@ -298,6 +289,7 @@ def main():
         # Look for the response
         amount_received = 0
         amount_expected = len(packet)
+        
 
         # here we choose the size of the buffer e.g. 100 
         while amount_received < amount_expected:

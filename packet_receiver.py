@@ -3,11 +3,15 @@ import argparse
 
 def checksum(message):
     message_list_header = message.split()[0:9]
+    for item in message_list_header:
+        print('message_list_header: '+ item.decode('utf-8') + '\n')
     decoded_checksum = 0
     for value in message_list_header:
         decoded_checksum += int(value, 16)
 
+    print('decoded_checksum: ' + decoded_checksum + '\n')
     string_checksum = hex(decoded_checksum).upper().replace("0x","")
+    print("string_checksum" +str(string_checksum)+ "\n")
     if len(string_checksum) == 5:
         first_digit = int(string_checksum[0], 16)
         rest = int(string_checksum[1:], 16)
@@ -39,8 +43,6 @@ def get_ip(message):
     
 
 def main():
-    #Code to get the packet from server here 
-    # message = what was received
     parser = argparse.ArgumentParser()
     parser.add_argument("-ip", type=str, required=True, help="Server IP address")
     args = parser.parse_args()
@@ -56,14 +58,15 @@ def main():
                 byte_data = conn.recv(1024)
                 if not byte_data:
                     break
-                print(byte_data)
                 data = byte_data.decode('utf-8')
+                print('data recieved: '+ data)
                 header_bytes = byte_data[:20]  # Assuming header is 20 bytes (2 fields * 2 bytes each)
                 payload_bytes = byte_data[20:]
                 if not checksum(header_bytes):
                     print("The verification of the checksum demonstrates that the packet recived is corrupted. Packet discared!")
                     continue
-                conn.sendall(data) #currently echoing to notify that the data has been sent but could use other format. 
+                
+                conn.send(byte_data) #currently echoing to notify that the data has been sent but could use other format. 
     
                 payload, data_length = get_payload(data)
                 ip = get_ip(data)
