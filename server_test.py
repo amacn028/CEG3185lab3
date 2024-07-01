@@ -31,12 +31,17 @@ def checksum(message):
 
 
 def get_payload(message):
-    payload_list = message.split()[49:]
+    print("\nmessage is: ",message)
+    message_list =message.split(" ")
+    print("\nmessage_list is: ",message_list)
+    payload_list = message.split(" ")[10:]
+    print("\npayload_list is: ",payload_list)
     payload_message = "".join(payload_list)
+    print("\npayload_message is: ",payload_message)
     bytes_message = bytes.fromhex(payload_message)
     decoded_message = bytes_message.decode('utf-8')
     print("\ndecoded_message is : ",decoded_message)
-    return (decoded_message, len(payload_list)*2)
+    return (decoded_message, len(message_list))
 
 
 def get_ip(message):
@@ -81,8 +86,8 @@ def main():
                 payload, data_length = get_payload(data)
                 ip = get_ip(data)
 
-                print(f"The data recieved from {ip} is {payload} /n ")
-                print(f"the data has {data_length*8} bits or {data_length} bytes. Total length of the packet is {len(data.strip())/2} bytes")
+                print(f"The data recieved from {ip} is {payload} \n ")
+                print(f"the data has {data_length*8} bits or {data_length} bytes. Total length of the packet {data_length*2} bytes")
                 print(f"The verification of the checksum demonstrates that the packet received is correct")
             
     
