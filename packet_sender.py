@@ -5,13 +5,7 @@ import argparse
 
 ip_address_list =[]
 sliced_ip_address_list=[]
-def printTest(server,payload):
-    print("\nserver is: ")
-    print("\n")
-    print(server)
-    print("\npayload is: ")
-    print("\n")
-    print(payload)
+
  
 def stringToHexEquivalentIntegerValue(string):
     hex_list =[]
