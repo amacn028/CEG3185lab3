@@ -1,34 +1,46 @@
+
 import socket
 import argparse
 
 def checksum(message):
-    message_list_header = message.split()[0:9]
-    for item in message_list_header:
-        print('message_list_header: '+ item.decode('utf-8') + '\n')
+    
+    message_list_header = message.split()[0:10]
+   
     decoded_checksum = 0
     for value in message_list_header:
         decoded_checksum += int(value, 16)
-
-    print('decoded_checksum: ' + decoded_checksum + '\n')
-    string_checksum = hex(decoded_checksum).upper().replace("0x","")
-    print("string_checksum" +str(string_checksum)+ "\n")
-    if len(string_checksum) == 5:
+    
+    string_checksum = hex(decoded_checksum).upper()
+    string_checksum = string_checksum.replace("0X","")
+    
+    if len(string_checksum) > 4:
         first_digit = int(string_checksum[0], 16)
+        
         rest = int(string_checksum[1:], 16)
         decoded_checksum = first_digit + rest
+        decoded_checksum = hex(decoded_checksum).upper().replace("0X","0x")
+        
     
-    if decoded_checksum == 0xFFFF:
+    if decoded_checksum == "0xFFFF":
+        
         return True
     else:
+        
         return False
 
 
 def get_payload(message):
-    payload_list = message.split()[9:]
+    
+    message_list =message.split(" ")
+   
+    payload_list = message.split(" ")[10:]
+   
     payload_message = "".join(payload_list)
+    
     bytes_message = bytes.fromhex(payload_message)
     decoded_message = bytes_message.decode('utf-8')
-    return (decoded_message, len(payload_list)*2)
+   
+    return (decoded_message, len(message_list))
 
 
 def get_ip(message):
@@ -43,6 +55,8 @@ def get_ip(message):
     
 
 def main():
+    #Code to get the packet from server here 
+    # message = what was received
     parser = argparse.ArgumentParser()
     parser.add_argument("-ip", type=str, required=True, help="Server IP address")
     args = parser.parse_args()
@@ -50,7 +64,7 @@ def main():
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((args.ip, PORT))
-        s.listen()
+        s.listen(1)
         conn, addr = s.accept()
         with conn:
             print(f"Connected by {addr}")
@@ -58,24 +72,30 @@ def main():
                 byte_data = conn.recv(1024)
                 if not byte_data:
                     break
+                print(byte_data)
                 data = byte_data.decode('utf-8')
-                print('data recieved: '+ data)
-                header_bytes = byte_data[:20]  # Assuming header is 20 bytes (2 fields * 2 bytes each)
-                payload_bytes = byte_data[20:]
+                header_bytes = byte_data[:50]  # Assuming header is 20 bytes (2 fields * 2 bytes each)
+                payload_bytes = byte_data[50:]
                 if not checksum(header_bytes):
-                    print("The verification of the checksum demonstrates that the packet recived is corrupted. Packet discared!")
+                    print("The verification of the checksum demonstrates that the packet recived is corrupted. Packet discarded!")
+                    
                     continue
-                
-                conn.send(byte_data) #currently echoing to notify that the data has been sent but could use other format. 
+                #conn.sendall(data) #currently echoing to notify that the data has been sent but could use other format. 
     
                 payload, data_length = get_payload(data)
                 ip = get_ip(data)
 
-                print(f"The data recieved from {ip} is {payload} /n ")
-                print(f"the data has {data_length*8} bits or {data_length} bytes. Total length of the packet is {len(data.strip())/2} bytes")
-                print(f"The verification of the checksum demonstartes that the packet received is correct")
-
-
+                print(f"The data recieved from {ip} is {payload} \n ")
+                print(f"the data has {data_length*8} bits or {data_length} bytes. Total length of the packet {data_length*2} bytes")
+                print(f"The verification of the checksum demonstrates that the packet received is correct")
+            
+    
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
