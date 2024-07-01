@@ -3,44 +3,43 @@ import socket
 import argparse
 
 def checksum(message):
-    print("\nmessage is: ",message)
+    
     message_list_header = message.split()[0:10]
-    print("\nmessage_list_header is: ",message_list_header)
+   
     decoded_checksum = 0
     for value in message_list_header:
         decoded_checksum += int(value, 16)
-    print("\ndecoded_checksum is: ",decoded_checksum)
+    
     string_checksum = hex(decoded_checksum).upper()
     string_checksum = string_checksum.replace("0X","")
-    print("\nstring_checksum is: ",string_checksum)
-    print("\n length of string_checksum is: ",len(string_checksum))
+    
     if len(string_checksum) > 4:
         first_digit = int(string_checksum[0], 16)
-        print("\nfirst digit is: ",first_digit)
+        
         rest = int(string_checksum[1:], 16)
         decoded_checksum = first_digit + rest
         decoded_checksum = hex(decoded_checksum).upper().replace("0X","0x")
-        print("\ndecoded_checksum is: ",decoded_checksum)
+        
     
     if decoded_checksum == "0xFFFF":
-        print("\n True flag")
+        
         return True
     else:
-        print("\n False flag")
+        
         return False
 
 
 def get_payload(message):
-    print("\nmessage is: ",message)
+    
     message_list =message.split(" ")
-    print("\nmessage_list is: ",message_list)
+   
     payload_list = message.split(" ")[10:]
-    print("\npayload_list is: ",payload_list)
+   
     payload_message = "".join(payload_list)
-    print("\npayload_message is: ",payload_message)
+    
     bytes_message = bytes.fromhex(payload_message)
     decoded_message = bytes_message.decode('utf-8')
-    print("\ndecoded_message is : ",decoded_message)
+   
     return (decoded_message, len(message_list))
 
 
@@ -100,19 +99,4 @@ if __name__ == "__main__":
 
 
 
-'''
-import socket
-mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-buffer_size = 1024
-#need to allow external ips, not simply local host/local machine ips
-host =''
-port = 9879
-mysocket.bind((host, port))
-mysocket.listen(5)
-(client, (ip,port)) = mysocket.accept()
-print(client, port)
-client.send(b"knock knock knock, I'm the server")
-data = client.recv(buffer_size)
-print(data.decode())
-mysocket.close()
-'''
+

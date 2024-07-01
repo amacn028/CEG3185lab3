@@ -211,8 +211,7 @@ def integerToHex(lst):
             item = item.replace("0x","")
             string=string+" "+item
     return string
-# just to need ensure that the packet always sends 40 bytes , thats the intention of the
-#check below. If less than 40 bytes, add padding; if 40 bytes, no padding necessary
+
 def lengthCheck(char,lst):
     headerLength = int(char)
     payloadLength = len(lst)
@@ -261,7 +260,7 @@ def main():
 
 
     print("\n")
-    sourceIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
+    sourceIP= str(input("Please input the sourceIP/serverIP in the following format xxx.xxx.x.x: "))
     sourceIPHex = stringToHexEquivalentIntegerValue(sourceIP)
     print("\n")
     destinationIP= str(input("Please input the sourceIP in the following format xxx.xxx.x.x: "))
@@ -276,23 +275,22 @@ def main():
     IPheaderLength ="0028"
     Identification ="1c46"
     
-    #print("\ntest is: ",test)
+    
     payloadCheck=lengthCheck(headerLength,payloadHex)
-    #print("\nlengthCheck is: ",payloadCheck)
+    
     
     
     
     checksum = checkSumCalculator(payloadheaderIP,headerLength,TOS,IPheaderLength,Identification,IPFlagsAndFragmentOffset,IPTTLandProtocol,sourceIP,destinationIP)
-    #print("\nip_address_list is: ",ip_address_list)
+    
     sliced_ip_address_list= ip_address_list[2:6:1]
-    #print("\nsliced_ip_address_list is: ",sliced_ip_address_list)
+    
     word1 = integerToHex(sliced_ip_address_list)
     
     payloadHex = integerToHex(payloadHex)
     
     packet = encapsulatePacket(IPheaderLength,Identification,checksum,word1,payloadCheck,payloadheaderIP ,headerLength ,TOS,IPFlagsAndFragmentOffset,IPTTLandProtocol)
-    #print("\n",packet)
-    #host = '127.0.0.1'
+    
     port = 9879
     # Create a TCP/IP socket
     Client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
